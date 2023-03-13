@@ -128,7 +128,9 @@ public class CardClicked implements EventProcessor{
 							//j,i-1
 							if(i-1>=0){
 								if(GameState.gameBoard[i-1][j] != null){
+
 								if(HumanPlayer.humanCardNumbers.contains(GameState.gameBoard[i-1][j].getId()) || GameState.gameBoard[i-1][j].getId() == 100){
+									if(GameState.gameBoard[i][j] == null){
 									Tile tile = BasicObjectBuilders.loadTile(i, j);
 								 	BasicCommands.addPlayer1Notification(out, "Highlight", 2);
 		       					 	BasicCommands.drawTile(out, tile, 1);									
@@ -136,20 +138,30 @@ public class CardClicked implements EventProcessor{
 									newPosition.add(i);
 									newPosition.add(j);
 									TileClicked.permissiblePositions.add(newPosition);
+
+									}
+
 								}
 								}
 							}
 							//j,i+1
 							if(i+1 <=8){
 								if(GameState.gameBoard[i+1][j] != null){
+
 									if(HumanPlayer.humanCardNumbers.contains(GameState.gameBoard[i+1][j].getId()) || GameState.gameBoard[i+1][j].getId() == 100){
-									Tile tile = BasicObjectBuilders.loadTile(i, j);
-								 	BasicCommands.addPlayer1Notification(out, "Highlight", 2);
-		       					 	BasicCommands.drawTile(out, tile, 1);									
-									ArrayList<Integer> newPosition = new ArrayList<Integer>();
-									newPosition.add(i);
-									newPosition.add(j);
-									TileClicked.permissiblePositions.add(newPosition);
+																
+									if(GameState.gameBoard[i][j] == null){
+										System.out.println(i+1 + " this is i");
+										System.out.println(j + " this is j");
+										System.out.println(GameState.gameBoard[i+1][j] );	
+										Tile tile = BasicObjectBuilders.loadTile(i, j);
+								 		BasicCommands.addPlayer1Notification(out, "Highlight", 2);
+		       					 		BasicCommands.drawTile(out, tile, 1);									
+										ArrayList<Integer> newPosition = new ArrayList<Integer>();
+										newPosition.add(i);
+										newPosition.add(j);
+										TileClicked.permissiblePositions.add(newPosition);
+									}
 									}
 							}
 							}
@@ -157,7 +169,11 @@ public class CardClicked implements EventProcessor{
 							//j-1,y
 							if(j-1 >=0){
 								if(GameState.gameBoard[i][j-1] != null){
+							
 									if(HumanPlayer.humanCardNumbers.contains(GameState.gameBoard[i][j-1].getId()) || GameState.gameBoard[i][j-1].getId() == 100){
+
+									
+									if(GameState.gameBoard[i][j] == null){
 									Tile tile = BasicObjectBuilders.loadTile(i, j);
 								 	BasicCommands.addPlayer1Notification(out, "Highlight", 2);
 		       					 	BasicCommands.drawTile(out, tile, 1);									
@@ -165,15 +181,21 @@ public class CardClicked implements EventProcessor{
 									newPosition.add(i);
 									newPosition.add(j);
 									TileClicked.permissiblePositions.add(newPosition);
+
+									}
 									}
 							}
 							}
 
-							//j+1,y
+							//j+1,i
 
 							if (j+1<=4) {
-								if(GameState.gameBoard[i][j+1] != null){
+								if(GameState.gameBoard[i][j+1]!= null){
+								
 									if(HumanPlayer.humanCardNumbers.contains(GameState.gameBoard[i][j+1].getId()) || GameState.gameBoard[i][j+1].getId() == 100){
+									if(GameState.gameBoard[i][j] == null){
+									System.out.println(i + " this is i");
+									System.out.println(j+1 + " this is j");	
 									Tile tile = BasicObjectBuilders.loadTile(i, j);
 								 	BasicCommands.addPlayer1Notification(out, "Highlight", 2);
 		       					 	BasicCommands.drawTile(out, tile, 1);									
@@ -181,6 +203,8 @@ public class CardClicked implements EventProcessor{
 									newPosition.add(i);
 									newPosition.add(j);
 									TileClicked.permissiblePositions.add(newPosition);
+
+									}
 									}
 							}
 
@@ -190,7 +214,9 @@ public class CardClicked implements EventProcessor{
 
 							if(j-1 >=0 && i-1>=0){
 								if(GameState.gameBoard[i-1][j-1] != null){
+											
 									if(HumanPlayer.humanCardNumbers.contains(GameState.gameBoard[i-1][j-1].getId()) || GameState.gameBoard[i-1][j-1].getId() == 100){
+									if(GameState.gameBoard[i][j] == null){
 									Tile tile = BasicObjectBuilders.loadTile(i, j);
 								 	BasicCommands.addPlayer1Notification(out, "Highlight", 2);
 		       					 	BasicCommands.drawTile(out, tile, 1);									
@@ -198,6 +224,8 @@ public class CardClicked implements EventProcessor{
 									newPosition.add(i);
 									newPosition.add(j);
 									TileClicked.permissiblePositions.add(newPosition);
+
+									}
 									}
 							}
 
@@ -208,7 +236,9 @@ public class CardClicked implements EventProcessor{
 							if (j+1<=4 && i-1 >=0)
 							{
 								if(GameState.gameBoard[i-1][j+1] != null){
+						
 									if(HumanPlayer.humanCardNumbers.contains(GameState.gameBoard[i-1][j+1].getId()) || GameState.gameBoard[i-1][j+1].getId() == 100){
+									if(GameState.gameBoard[i][j] == null){
 									Tile tile = BasicObjectBuilders.loadTile(i, j);
 								 	BasicCommands.addPlayer1Notification(out, "Highlight", 2);
 		       					 	BasicCommands.drawTile(out, tile, 1);									
@@ -216,6 +246,8 @@ public class CardClicked implements EventProcessor{
 									newPosition.add(i);
 									newPosition.add(j);
 									TileClicked.permissiblePositions.add(newPosition);
+
+									}
 									}
 							}
 
@@ -225,7 +257,9 @@ public class CardClicked implements EventProcessor{
 
 							if( j-1 >=0 && i+1 <=8) { 
 								if(GameState.gameBoard[i+1][j-1] != null){
+					
 									if(HumanPlayer.humanCardNumbers.contains(GameState.gameBoard[i+1][j-1].getId()) || GameState.gameBoard[i+1][j-1].getId() == 100){
+									if(GameState.gameBoard[i][j] == null){
 									Tile tile = BasicObjectBuilders.loadTile(i, j);
 								 	BasicCommands.addPlayer1Notification(out, "Highlight", 2);
 		       					 	BasicCommands.drawTile(out, tile, 1);									
@@ -233,6 +267,8 @@ public class CardClicked implements EventProcessor{
 									newPosition.add(i);
 									newPosition.add(j);
 									TileClicked.permissiblePositions.add(newPosition);
+
+									}
 									}
 							}							
 							}
@@ -240,10 +276,11 @@ public class CardClicked implements EventProcessor{
 
 
 							//j+1,i+1
-
 							if(j+1 <= 4 && i+1 <=8){
 								if(GameState.gameBoard[i+1][j+1] != null){
+																	
 									if(HumanPlayer.humanCardNumbers.contains(GameState.gameBoard[i+1][j+1].getId()) || GameState.gameBoard[i+1][j+1].getId() == 100){
+									if(GameState.gameBoard[i][j] == null){
 									Tile tile = BasicObjectBuilders.loadTile(i, j);
 								 	BasicCommands.addPlayer1Notification(out, "Highlight", 2);
 		       					 	BasicCommands.drawTile(out, tile, 1);									
@@ -251,6 +288,8 @@ public class CardClicked implements EventProcessor{
 									newPosition.add(i);
 									newPosition.add(j);
 									TileClicked.permissiblePositions.add(newPosition);
+
+									}
 									}
 							}
 

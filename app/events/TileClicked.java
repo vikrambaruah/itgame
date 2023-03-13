@@ -316,20 +316,28 @@ public static ArrayList<Unit> attackedUnits = new ArrayList<Unit>();
 					if(GameState.currentunit.getId() == 100){
 
 						System.out.println("opposite player human");
+						if(reAttackUpdatedHealth <=0){
+							HumanPlayer.humanStats.setHealth(0);
+							BasicCommands.setPlayer2Health(out, HumanPlayer.humanStats);
+							BasicCommands.addPlayer1Notification(out, "setUnitHealth", 2);
+		    				BasicCommands.setUnitHealth(out, GameState.currentunit, 0);
+							try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+							//death animation of avatar -- game ends here
+							BasicCommands.addPlayer1Notification(out, "Game Ended! AI won!", 3);
+							BasicCommands.playUnitAnimation(out, GameState.currentunit, UnitAnimationType.death);				
+							try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
+						}
 						HumanPlayer.humanStats.setHealth(reAttackUpdatedHealth);
-						BasicCommands.setPlayer2Health(out, HumanPlayer.humanStats);
+						BasicCommands.setPlayer1Health(out, HumanPlayer.humanStats);
 						BasicCommands.addPlayer1Notification(out, "setUnitHealth", 2);
 		    			BasicCommands.setUnitHealth(out, GameState.currentunit, reAttackUpdatedHealth);
 						try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
 						//death animation of avatar -- game ends here
-						BasicCommands.addPlayer1Notification(out, "Game Ended! Player won!", 3);
-						BasicCommands.playUnitAnimation(out, GameState.currentunit, UnitAnimationType.death);
-				
+						BasicCommands.addPlayer1Notification(out, "Counter attack", 3);
+						// BasicCommands.playUnitAnimation(out, GameState.currentunit, UnitAnimationType.death);				
 						try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
 					}else {
-
 					System.out.println("opposite not human player but human unit");
-
 					for(int i = 0; i < HumanPlayer.humanCards.size();i++){
 						System.out.println("inside herre " + HumanPlayer.humanCards.get(i).getId() + " " + GameState.currentunit.getId());
 						if(HumanPlayer.humanCards.get(i).getId() == GameState.currentunit.getId()){
@@ -340,12 +348,15 @@ public static ArrayList<Unit> attackedUnits = new ArrayList<Unit>();
 								HumanPlayer.humanCards.get(i).getBigCard().setHealth(0);
 								BasicCommands.addPlayer1Notification(out, "setUnitHealth", 2);
 		    					BasicCommands.setUnitHealth(out, GameState.currentunit, 0);
-								try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
+								try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
 								BasicCommands.addPlayer1Notification(out, "Unit dead!", 3);
 								BasicCommands.playUnitAnimation(out, GameState.currentunit, UnitAnimationType.death);
+								try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
 								//TODORemove unit
-
-								try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
+								BasicCommands.addPlayer1Notification(out, "deleteUnit", 2);
+								BasicCommands.deleteUnit(out, GameState.currentunit);
+								GameState.gameBoard[GameState.selectedUnitX][GameState.selectedUnitY] = null;
+								try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}							
 								return;
 							}
 							System.out.println("check point 3!");
@@ -353,12 +364,9 @@ public static ArrayList<Unit> attackedUnits = new ArrayList<Unit>();
 							HumanPlayer.humanCards.get(i).getBigCard().setHealth(reAttackUpdatedHealth);
 							BasicCommands.addPlayer1Notification(out, "setUnitHealth", 2);
 		    				BasicCommands.setUnitHealth(out, GameState.currentunit, reAttackUpdatedHealth);
-							try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
-						
+							try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}						
 					}
 				}						
-
-
 			}
 					//else do this
 
@@ -393,16 +401,20 @@ public static ArrayList<Unit> attackedUnits = new ArrayList<Unit>();
 			if(GameState.gameBoard[x][y].getId() == 200){
 				if(updatedHealth <=0){
 					//death animation of the opposite player
+					System.out.println("we are here!!");
 					AIOpponent.AIStats.setHealth(0);
 					BasicCommands.setPlayer2Health(out, AIOpponent.AIStats);
 					BasicCommands.addPlayer1Notification(out, "setUnitHealth", 2);
-		    		BasicCommands.setUnitHealth(out, GameState.gameBoard[x][y], updatedHealth);
+		    		BasicCommands.setUnitHealth(out, GameState.gameBoard[x][y], 0);
 					try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
 					//death animation of avatar -- game ends here
 					BasicCommands.addPlayer1Notification(out, "Game Ended! Player won!", 3);
 					BasicCommands.playUnitAnimation(out, GameState.gameBoard[x][y], UnitAnimationType.death);
 				
 					try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
+					attackedUnits.add(GameState.currentunit);
+					GameState.gameEnded = true;
+					// permissiblePositions.clear();
 					return;
 
 				}
@@ -410,6 +422,7 @@ public static ArrayList<Unit> attackedUnits = new ArrayList<Unit>();
 				BasicCommands.setPlayer2Health(out, AIOpponent.AIStats);
 				BasicCommands.addPlayer1Notification(out, "setUnitHealth", 2);
 		    	BasicCommands.setUnitHealth(out, GameState.gameBoard[x][y], updatedHealth);
+				attackedUnits.add(GameState.currentunit);
 				try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
 
 				//counter attack
@@ -430,9 +443,13 @@ public static ArrayList<Unit> attackedUnits = new ArrayList<Unit>();
 						try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
 						BasicCommands.addPlayer1Notification(out, "Unit dead!", 3);
 						BasicCommands.playUnitAnimation(out, GameState.gameBoard[x][y], UnitAnimationType.death);
-						//TODORemove unit 
-
-						try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
+						
+						try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+						
+						BasicCommands.addPlayer1Notification(out, "deleteUnit", 2);
+						BasicCommands.deleteUnit(out,  GameState.gameBoard[x][y]);
+						GameState.gameBoard[x][y] = null;
+						try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
 						return;
 					}
 					AIOpponent.AIOpponentCards.get(i).getBigCard().setHealth(updatedHealth);
@@ -500,13 +517,15 @@ public static ArrayList<Unit> attackedUnits = new ArrayList<Unit>();
 						if(permissiblePositions.get(i).get(0) == tilex &&permissiblePositions.get(i).get(1) == tiley){
 							    //TODO Checkprovoke if provoked cant move.
 
+								System.out.println("moved units length " + movedUnits.size());
+								System.out.println("attacked units length " + attackedUnits.size());
 
-								
 								if(movedUnits.contains(unit) || attackedUnits.contains(unit)){
 									BasicCommands.addPlayer1Notification(out, "Unit already moved", 2);
 									try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
 									removeHighlight(out);
 									System.out.println("unit already moved this turn");
+									GameState.isUnitSelected = false;
 									return;
 								}
 
@@ -521,6 +540,7 @@ public static ArrayList<Unit> attackedUnits = new ArrayList<Unit>();
 				    			//unhighligh all tiles.
 								try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
 								GameState.previousMove = "move";
+								// permissiblePositions.clear();
 								movedUnits.add(unit);
 								// GameState.isPlayerTurnCompleted = true;
 
@@ -539,10 +559,26 @@ public static ArrayList<Unit> attackedUnits = new ArrayList<Unit>();
 			
 			}else if(GameState.gameBoard[tilex][tiley] != null) { 
 
+				//TODO check provoked, if provoked only it can attack a unit that made it to provoke.
+			System.out.println("moved units length " + movedUnits.size());
+				System.out.println("attacked units length " + attackedUnits.size());
+				
+				if(attackedUnits.contains(GameState.currentunit)){
+					GameState.isUnitSelected = false;
+					BasicCommands.addPlayer1Notification(out, "Unit Already used for attacking", 2);
+					try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+					removeHighlight(out);
+					System.out.println("already attacked");
+					
+					return;
+				}
+
 				//TODO current unit is two steps ahead? then move one adjacent tile then attack
 
-				
+				System.out.println(GameState.selectedUnitX + " this is x " + GameState.selectedUnitY + " this is Y " );
+
 				attackUnit(out,tilex,tiley); 
+			    
 				GameState.isUnitSelected = false;
 				
 				try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
@@ -594,13 +630,14 @@ public static ArrayList<Unit> attackedUnits = new ArrayList<Unit>();
                                         AIOpponent.AIStats.setHealth(updatedHealth);
 										System.out.println("inside updating health");
 										BasicCommands.setUnitHealth(out, GameState.gameBoard[tilex][tiley], updatedHealth);
+										// BasicCommands.setPlayer2Health(out, AIOpponent.AIStats);
 										BasicCommands.setPlayer2Health(out, AIOpponent.AIStats);
 										try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
                                     }else { 
                                         System.out.println(updatedHealth + " " + currentHealth + " " + 2);
                                         BasicCommands.addPlayer1Notification(out, "setUnitHealth", 2);
                                         BasicCommands.setUnitHealth(out, GameState.gameBoard[tilex][tiley], updatedHealth);
-									for(int i = 0; i < HumanPlayer.humanCards.size();i++){
+										for(int i = 0; i < HumanPlayer.humanCards.size();i++){
 										if(HumanPlayer.humanCards.get(i).getId() == GameState.gameBoard[tilex][tiley].getId()){
 											HumanPlayer.humanCards.get(i).getBigCard().setHealth(updatedHealth);
 										}
@@ -621,13 +658,16 @@ public static ArrayList<Unit> attackedUnits = new ArrayList<Unit>();
 							if(HumanPlayer.humanCardNumbers.contains(GameState.gameBoard[tilex][tiley].getId()) || GameState.gameBoard[tilex][tiley].getId() == 100){
 									int maximumHealth = getUnitHealth(out,GameState.gameBoard[tilex][tiley]);
 									int healthCanBeIncreased = 5;
-									int actualHealth;
+									// int actualHealth;
 									int currentHealth = 0;
 									int updatedHealth = 0;
+									if(GameState.gameBoard[tilex][tiley].getId() == 100){
+										currentHealth = HumanPlayer.humanStats.getHealth();
+									}
 									for(int i =0; i < HumanPlayer.humanCards.size();i++){
 										if(HumanPlayer.humanCards.get(i).getId() == GameState.gameBoard[tilex][tiley].getId()){
 											currentHealth = HumanPlayer.humanCards.get(i).getBigCard().getHealth();
-											actualHealth = HumanPlayer.humanCards.get(i).getBigCard().getHealth();
+											// actualHealth = HumanPlayer.humanCards.get(i).getBigCard().getHealth();
 										}
 									}
 
@@ -637,11 +677,26 @@ public static ArrayList<Unit> attackedUnits = new ArrayList<Unit>();
 											updatedHealth += 1;
 										}
 									}
+									if(GameState.gameBoard[tilex][tiley].getId() == 100){
+										HumanPlayer.humanStats.setHealth(currentHealth+updatedHealth);
+										BasicCommands.setPlayer1Health(out, HumanPlayer.humanStats);
+										try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}	
+										
+									}else { 
 									System.out.println(maximumHealth + " this is current health");
 									// if(maximumHealth)
 									// GameState.gameBoard[tilex][tiley]
+									for(int i =0; i < HumanPlayer.humanCards.size();i++){
+										if(HumanPlayer.humanCards.get(i).getId() == GameState.gameBoard[tilex][tiley].getId()){
+											HumanPlayer.humanCards.get(i).getBigCard().setHealth(currentHealth+updatedHealth);
+											// actualHealth = HumanPlayer.humanCards.get(i).getBigCard().getHealth();
+										}
+									}									
 									BasicCommands.setUnitHealth(out, GameState.gameBoard[tilex][tiley], currentHealth + updatedHealth);
-                                    try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
+                                    try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}										
+
+									}
+
 							}else { 
 								System.out.println("you cannot use it for opposite player value");
 							}

@@ -28,6 +28,7 @@ public class AIOpponent {
     public static String[] AICards = {
             StaticConfFiles.c_blaze_hound,
             StaticConfFiles.c_staff_of_ykir,
+            StaticConfFiles.c_staff_of_ykir,
             StaticConfFiles.c_bloodshard_golem,
             StaticConfFiles.c_entropic_decay,
             StaticConfFiles.c_hailstone_golem,
@@ -35,7 +36,7 @@ public class AIOpponent {
             StaticConfFiles.c_pyromancer,
             StaticConfFiles.c_serpenti,
             StaticConfFiles.c_rock_pulveriser,
-            StaticConfFiles.c_staff_of_ykir,
+            
             StaticConfFiles.c_windshrike,
             StaticConfFiles.c_blaze_hound,
             StaticConfFiles.c_bloodshard_golem,
@@ -45,7 +46,7 @@ public class AIOpponent {
             StaticConfFiles.c_pyromancer,
             StaticConfFiles.c_serpenti,
             StaticConfFiles.c_rock_pulveriser,
-        
+            
             StaticConfFiles.c_windshrike,
     };
 
@@ -74,12 +75,10 @@ public class AIOpponent {
     public static int currentCardNumber = 1;
     public static ArrayList<ArrayList<Integer>> permissiblePositions = new ArrayList<ArrayList<Integer>>();
     public static int AITurn = 0;
-    public static boolean AIFirstUnit = false;
     public static Unit currentUnit = GameState.gameBoard[7][2];
-    public static Unit AIavatar = GameState.gameBoard[7][2];
     public static int selectedUnitX = -1;
     public static int selectedUnitY = -1;
-
+    public static int cnt=1;
     public static String readFileAsString(String file) throws Exception {
         return new String(Files.readAllBytes(Paths.get(file)));
     }
@@ -261,10 +260,11 @@ public class AIOpponent {
             selectedUnitX = 7;
             selectedUnitY = 2;
         }
-        highlightPossibleMoves(out, selectedUnitX, selectedUnitY);
+        // highlightPossibleMoves(out, selectedUnitX, selectedUnitY);
         // else {
         // currentUnit = currentUnit;
         // }
+        
         for (int i = 0; i < AIOpponent.AIHand.length; i++) {
             System.out.println("AI hand  " + AIOpponent.AIHand[i]);
             if (AIOpponent.AIHand[i] != null) {
@@ -343,7 +343,8 @@ public class AIOpponent {
                         }
                         BasicCommands.deleteUnit(out, GameState.gameBoard[unitx][unity]);
                         GameState.gameBoard[unitx][unity] = null;
-
+                        cnt++;
+                        increaseUnitHealth(out,cnt);
                         break;
                     }
                     if (GameState.currentCard.getId()==1004){
@@ -352,19 +353,34 @@ public class AIOpponent {
                                 if (GameState.gameBoard[k][j] != null){
                                     if (GameState.gameBoard[k][j].getId() == 200){
                                         System.out.println("1004 first if running");
-                                        BasicCommands.setUnitAttack(out, GameState.gameBoard[k][j], 4);
-                                       if(getCard(out, GameState.gameBoard[k][j] )!= null){
-                                        System.out.println("1004 is running");
-                                            Card a = getCard(out, GameState.gameBoard[k][j]);
-                                            a.getBigCard().setAttack(4);
-                                            break;
-                                       }
+                                        EffectAnimation ef = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_martyrdom);
+                                        Tile tile = BasicObjectBuilders.loadTile(k, j);
+                                        BasicCommands.playEffectAnimation(out, ef, tile);
+                                        try{
+                                            Thread.sleep(100);
+                                        }
+                                        catch(Exception e){
+                                            e.printStackTrace();
+                                        }
+                                        int att=0;
+                                        BasicCommands.setUnitAttack(out, GameState.gameBoard[k][j], getUnitAttack(out, GameState.gameBoard[k][j])+2);
+                                        
+                                    //    if(getCard(out, GameState.gameBoard[k][j] )!= null){
+                                    //     System.out.println("1004 is running");
+                                    //         Card a = getCard(out, GameState.gameBoard[k][j]);
+                                    //         System.out.println(a.getBigCard().getAttack() + " this is old attack");
+                                    //         a.getBigCard().setAttack(a.getBigCard().getAttack()+2);
+                                            
+                                    //    }
                                        
                                     }
+                                    
                                 }
                             }
                         }
                         AIOpponent.deleteCard(out, i);
+                        cnt++;
+                        increaseUnitHealth(out,cnt);
                         for (int a = 0; a < GameState.currentCard.getManacost(); a++) {
                             AIOpponent.AIStats.setMana(AIOpponent.AIStats.getMana() - 1);
                             BasicCommands.setPlayer2Mana(out, AIOpponent.AIStats);
@@ -375,11 +391,14 @@ public class AIOpponent {
                             }
             
                         }
+                        
+                        break;
                     }
                 }
             }
         }
         if (GameState.previousMove == "deploy") {
+            highlightPossibleMoves(out, selectedUnitX, selectedUnitY);
             for (int i = 0; i < AIOpponent.AIHand.length; i++) {
                 System.out.println("AI hand  " + AIOpponent.AIHand[i]);
                 if (AIOpponent.AIHand[i] != null) {
@@ -397,17 +416,13 @@ public class AIOpponent {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
-                    
                     if (GameState.currentCard.getManacost() <= AIOpponent.AIStats.getMana()) {
                         // TODO
                         // deploy unit
                         // delete the card from the AI hand.
-                        
-                        
-                            deployUnit(out, i);
-                            isUnitDeployed = true;
-                            break;
-                         
+                        deployUnit(out, i);
+                        isUnitDeployed = true;
+                        break;
                     }
 
                 }
@@ -417,6 +432,12 @@ public class AIOpponent {
                 // TODO
                 // move any possible unit on the board.. by running a for loop
                 // run for loop ..
+                System.out.println("ai avatar id " + currentUnit.getId());
+                if (currentUnit.getId() == 200) {
+                    highlightPossibleMoves(out, selectedUnitX, selectedUnitY);
+                } else {
+                    highlightUnitTiles(out);
+                }
                 moveUnit(out);
             }
 
@@ -437,6 +458,12 @@ public class AIOpponent {
 
             if (ifAttackMade == false) {
                 // run a for loop and check if you can move any unit then move a unit.
+                if (currentUnit.getId() == 200) {
+                    highlightPossibleMoves(out, selectedUnitX, selectedUnitY);
+                } else {
+                    highlightUnitTiles(out);
+                }
+                moveUnit(out);
             }
 
         }
@@ -446,123 +473,90 @@ public class AIOpponent {
 
         if (GameState.previousMove == "move") {
             // run a for loop on the game board.. and move any possible Unit...
+            System.out.println("ai avatar id " + currentUnit.getId());
+            if (currentUnit.getId() == 200) {
+                highlightPossibleMoves(out, selectedUnitX, selectedUnitY);
+            } else {
+                highlightUnitTiles(out);
+            }
             moveUnit(out);
 
         }
 
     }
-
+    public static void increaseUnitHealth(ActorRef out,int cnt){
+        for (int k=0;k<9;k++){
+            for (int j=0;j<5;j++){
+                if (GameState.gameBoard[k][j] != null){
+                    if (GameState.gameBoard[k][j].getId()==11){
+                        if(getCard(out, GameState.gameBoard[k][j] )!= null){
+                            Card a = getCard(out, GameState.gameBoard[k][j]);
+                            a.getBigCard().setAttack(cnt);
+                            a.getBigCard().setHealth(cnt+3);
+                            
+                       }
+                        BasicCommands.setUnitHealth(out, GameState.gameBoard[k][j], cnt+3);
+                        BasicCommands.setUnitAttack(out, GameState.gameBoard[k][j], cnt);
+                    }
+                }
+            }
+        }
+    }
     public static void deployUnit(ActorRef out, int AIHandPosition) {
-        Random rand = new Random();
-        int tilex = rand.nextInt(9);
-        int tiley = rand.nextInt(5);
-        boolean isPermissible = false;
-        // if
-        // (AIOpponent.AICardNumbers.contains(GameState.gameBoard[tilex][tiley].getId())
-        // || GameState.gameBoard[7][2].getId() == 200) {
-        // throw warning same player!
-        // if (!AIFirstUnit) {
-        // highlightPossibleMoves(out, 7, 2);
-        // } else {
-        highlightUnitTiles(out);
-        // }
-        System.out.println("inside deploy unit " + permissiblePositions.size());
-        while (!isPermissible) {
-            for (int i = 0; i < permissiblePositions.size(); i++) {
-                if (permissiblePositions.get(i).get(0) == tilex
-                        && permissiblePositions.get(i).get(1) == tiley) {
-                    isPermissible = true;
-                    break;
-
-                }
-            }
-            if (!isPermissible) {
-                tilex = rand.nextInt(9);
-                tiley = rand.nextInt(5);
-            }
-        }
-        // }
-        Tile tile = BasicObjectBuilders.loadTile(tilex, tiley);
-        System.out.println("Load tile for AI");
-        // TODO
-        // ifselected card is a unit then deploy
-        // if selected card is a spell and can deployed
-        if (GameState.gameBoard[tilex][tiley] == null) {
-            try {
-                System.out.println("inside here not a spell! its a unit");
-                // TODO move this to AI player
-                BasicCommands.addPlayer1Notification(out, "Deploying AI Unit", 2);
-                System.out.println(GameState.currentCard.getId() + " this is the id of the unit");
-                Unit unit = BasicObjectBuilders.loadUnit(getUnit(GameState.currentCard),
-                        GameState.currentCard.getId(), Unit.class);
-                System.out.println("test before posn");
-                unit.setPositionByTile(tile);
-                System.out.println("after set");
-                BasicCommands.drawUnit(out, unit, tile);
-                System.out.println("after draw unit");
-                AIFirstUnit = true;
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                GameState.gameBoard[tilex][tiley] = unit;
-                currentUnit = unit;
-                System.out.println(
-                        "inside deploy unit " + GameState.gameBoard[tilex][tiley] + " " + unit + " " + currentUnit);
-
-                // Set unit Health
-                BasicCommands.addPlayer1Notification(out, "setUnitHealth", 2);
-                BasicCommands.setUnitHealth(out, unit, GameState.currentCard.getBigCard().getHealth());
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                // setUnitAttack
-                BasicCommands.addPlayer1Notification(out, "setUnitAttack", 2);
-                BasicCommands.setUnitAttack(out, unit, GameState.currentCard.getBigCard().getAttack());
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                // delete card
-                AIOpponent.deleteCard(out, AIHandPosition);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            // TODO Reduce mana here;
-            for (int i = 0; i < GameState.currentCard.getManacost(); i++) {
-                AIOpponent.AIStats.setMana(AIOpponent.AIStats.getMana() - 1);
-                BasicCommands.setPlayer2Mana(out, AIOpponent.AIStats);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-            }
-            // } else {
-            // // TODO throw not enough mana
-            // System.out.println("not enough mana");
-
-            // }
-
-        } else if (GameState.gameBoard[tilex][tiley] != null) {
-            // TODO
+        boolean isSpecial = specialAbilityUnit(out, AIHandPosition);
+        if (!isSpecial) {
+            Random rand = new Random();
+            int tilex = rand.nextInt(9);
+            int tiley = rand.nextInt(5);
+            boolean isPermissible = false;
             // if
-            // if selected card is a unit then throw error
-            // if selected card is spell and current unit is player unit perform action
-            // if selected card is spell and current unit is opposite perform action
+            // (AIOpponent.AICardNumbers.contains(GameState.gameBoard[tilex][tiley].getId())
+            // || GameState.gameBoard[7][2].getId() == 200) {
+            // throw warning same player!
+            // if (!AIFirstUnit) {
+            // highlightPossibleMoves(out, 7, 2);
+            // } else {
+            highlightUnitTiles(out);
+            // }
+            System.out.println("inside deploy unit " + permissiblePositions.size());
+            while (!isPermissible) {
+                for (int i = 0; i < permissiblePositions.size(); i++) {
+                    if (permissiblePositions.get(i).get(0) == tilex
+                            && permissiblePositions.get(i).get(1) == tiley) {
+                        isPermissible = true;
+                        break;
 
+                    }
+                }
+                if (!isPermissible) {
+                    tilex = rand.nextInt(9);
+                    tiley = rand.nextInt(5);
+                }
+            }
+            // }
+            // Tile tile = BasicObjectBuilders.loadTile(tilex, tiley);
+            System.out.println("Load tile for AI");
+            // TODO
+            // ifselected card is a unit then deploy
+            // if selected card is a spell and can deployed
+            if (GameState.gameBoard[tilex][tiley] == null) {
+                // TODO move this to AI player
+                loadNewUnit(out, tilex, tiley, AIHandPosition);
+                // } else {
+                // // TODO throw not enough mana
+                // System.out.println("not enough mana");
+
+                // }
+
+            } else if (GameState.gameBoard[tilex][tiley] != null) {
+                // TODO
+                // if
+                // if selected card is a unit then throw error
+                // if selected card is spell and current unit is player unit perform action
+                // if selected card is spell and current unit is opposite perform action
+
+            }
         }
-        // }
-
     }
 
     public static void moveUnit(ActorRef out) {
@@ -614,6 +608,7 @@ public class AIOpponent {
             if (!unitMoved) {
                 selectedUnitX = -1;
                 selectedUnitY = -1;
+
             }
         }
         // else if (GameState.gameBoard[tilex][tiley] != null) {
@@ -633,6 +628,7 @@ public class AIOpponent {
             try {
                 String json = readFileAsString(eachUnit);
                 Unit unit = mapper.readValue(json, Unit.class);
+                System.out.println("Inside getunit " + unit + " " + unit.getId() + " " + card + " " + card.getId());
                 if (unit.getId() == card.getId()) {
                     return eachUnit;
                 }
@@ -908,7 +904,7 @@ public class AIOpponent {
 
     public static void loadMana(ActorRef out, int newManaValue) {
 
-        while (AIOpponent.AIStats.getMana() <= 20 && newManaValue > 0 && newManaValue <= 9) {
+        while (AIOpponent.AIStats.getMana() <= 9 && newManaValue > 0 && newManaValue <= 9) {
             AIOpponent.AIStats.setMana(AIOpponent.AIStats.getMana() + 1);
             BasicCommands.addPlayer1Notification(out, "setPlayer2Mana", 1);
             BasicCommands.setPlayer2Mana(out, AIOpponent.AIStats);
@@ -965,6 +961,97 @@ public class AIOpponent {
             System.out.println("done add new card");
         } else if (position >= 6) {
             // TODO write logic loose cards
+            currentCardNumber+=1;
+        }
+    }
+
+    public static boolean specialAbilityUnit(ActorRef out, int AIHandPosition) {
+        if (GameState.currentCard.getId() == 10) {
+            Random rand = new Random();
+            int tilex = rand.nextInt(9);
+            int tiley = rand.nextInt(5);
+            boolean isPermissible = false;
+            System.out.println("inside specialAbilityUnit planar" + permissiblePositions.size());
+            while (!isPermissible) {
+                if (GameState.gameBoard[tilex][tiley] == null) {
+                    isPermissible = true;
+                    break;
+
+                }
+                if (!isPermissible) {
+                    tilex = rand.nextInt(9);
+                    tiley = rand.nextInt(5);
+                }
+            }
+            loadNewUnit(out, tilex, tiley, AIHandPosition);
+            System.out.println("Load tile for AI specialAbilityUnit");
+            return true;
+        }
+        return false;
+    }
+
+    public static void loadNewUnit(ActorRef out, int tilex, int tiley, int AIHandPosition) {
+        try {
+            Tile tile = BasicObjectBuilders.loadTile(tilex, tiley);
+            BasicCommands.addPlayer1Notification(out, "Deploying AI Unit", 2);
+            System.out.println(GameState.currentCard.getId() + " this is the id of the unit");
+            Unit unit = BasicObjectBuilders.loadUnit(getUnit(GameState.currentCard),
+                    GameState.currentCard.getId(), Unit.class);
+            System.out.println("test before posn");
+            unit.setPositionByTile(tile);
+            System.out.println("after set");
+            BasicCommands.drawUnit(out, unit, tile);
+            System.out.println("after draw unit");
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            GameState.gameBoard[tilex][tiley] = unit;
+            currentUnit = unit;
+            System.out.println(
+                    "inside deploy unit " + GameState.gameBoard[tilex][tiley] + " " + unit + " " + currentUnit);
+
+            // Set unit Health
+            BasicCommands.addPlayer1Notification(out, "setUnitHealth", 2);
+            BasicCommands.setUnitHealth(out, unit, GameState.currentCard.getBigCard().getHealth());
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            // setUnitAttack
+            BasicCommands.addPlayer1Notification(out, "setUnitAttack", 2);
+            BasicCommands.setUnitAttack(out, unit, GameState.currentCard.getBigCard().getAttack());
+            AIOpponentCards.add(GameState.currentCard);
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            // delete card
+            AIOpponent.deleteCard(out, AIHandPosition);
+            if (GameState.currentCard.getId() == 3) {
+                AIOpponent.addNewCard(out);
+                HumanPlayer.addNewCard(out);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // TODO Reduce mana here;
+        for (int i = 0; i < GameState.currentCard.getManacost(); i++) {
+            AIOpponent.AIStats.setMana(AIOpponent.AIStats.getMana() - 1);
+            BasicCommands.setPlayer2Mana(out, AIOpponent.AIStats);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
         }
     }
 }

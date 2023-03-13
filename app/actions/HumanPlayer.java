@@ -27,13 +27,14 @@ public class HumanPlayer {
 
     public static String[] humanPlayerCards = {
 				StaticConfFiles.c_azure_herald,
+				StaticConfFiles.c_pureblade_enforcer,
 				StaticConfFiles.c_truestrike,
 				StaticConfFiles.c_azurite_lion,
 				StaticConfFiles.c_comodo_charger,
 				StaticConfFiles.c_fire_spitter,
 				StaticConfFiles.c_hailstone_golem,
 				StaticConfFiles.c_ironcliff_guardian,
-				StaticConfFiles.c_pureblade_enforcer,
+				
 				StaticConfFiles.c_silverguard_knight,
 				StaticConfFiles.c_sundrop_elixir,
 				StaticConfFiles.c_truestrike,
@@ -301,6 +302,7 @@ public class HumanPlayer {
 
 		}else if (position >= 6){
 				//TODO write logic loose cards
+				currentCardNumber+=1;
 		}
 
 
